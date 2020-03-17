@@ -6,6 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore.SqlServer;
 using Microsoft.EntityFrameworkCore;
+using LojaVirtual.Repositories;
+using LojaVirtual.Repositories.Contracts;
 
 namespace LojaVirtual
 {
@@ -21,6 +23,9 @@ namespace LojaVirtual
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddScoped<IClienteRepository, ClienteRepository>();
+            services.AddScoped<INewsletterRepository, NewsletterRepository>();
+
             services.AddControllersWithViews();
 
             services.AddDbContext<LojaVirtualContext>(options => options.UseSqlServer(Configuration.GetConnectionString("LojaVirtualContext")));

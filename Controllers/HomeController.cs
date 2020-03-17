@@ -8,15 +8,18 @@ using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using LojaVirtual.Database;
+using LojaVirtual.Repositories.Contracts;
 
 namespace LojaVirtual.Controllers
 {
     public class HomeController : Controller
     {
-        private LojaVirtualContext _banco;
-        
-        public HomeController(LojaVirtualContext banco) {
-            _banco = banco;        
+        private IClienteRepository _repositoryCliente;
+        private INewsletterRepository _repositoryNewsletter;
+
+        public HomeController(IClienteRepository repositoryCliente, INewsletterRepository repositoryNewsletter) {
+            _repositoryCliente = repositoryCliente;
+            _repositoryNewsletter = repositoryNewsletter;
         }
 
         [HttpGet]
@@ -30,12 +33,10 @@ namespace LojaVirtual.Controllers
         {
             if (ModelState.IsValid)
             {
-                //TODO - Adição no banco de dados
-                _banco.NewsletterEmails.Add(newsletter);
-                _banco.SaveChanges();
+                _repositoryNewsletter.Cadastrar(newsletter);
 
                 TempData["MSG_S"] = "E-mail cadastrado! Agora você vai receber promoções especiais no seu e-mail! Fique atento as novidades!";
-
+                
                 return RedirectToAction(nameof(Index));
             }
             else {         
@@ -90,7 +91,22 @@ namespace LojaVirtual.Controllers
             return View();
         }
 
+        [HttpGet]
         public IActionResult CadastroCliente() {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult CadastroCliente([FromForm]Cliente cliente)
+        {
+            if (ModelState.IsValid) {
+                _repositoryCliente.Cadastrar(cliente);
+
+                TempData["MSG_S"] = "Cadastro realizado com sucesso!";
+
+                //TODO - implementar redirecionamentos diferentes (Painel, Carrinho de compras, etc) 
+                return RedirectToAction(nameof(CadastroCliente));
+            }
             return View();
         }
 
